@@ -1,14 +1,14 @@
 === Adrotate Extra Settings ===
 Contributors: Mte90
 Donate link: http://mte90.net
-Tags: comments, spam
+Tags: adrotate, ad, banner, ads
 Requires at least: 3.8
-Tested up to: 3.8
+Tested up to: 3.9
 Stable tag: 1.0.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Ultra light plugin for Wordpress that add new tinys feature to AdRotate/AdRotate Pro
+Ultra light plugin for Wordpress that add new tiny features to AdRotate/AdRotate Pro
 
 == Description ==
 
