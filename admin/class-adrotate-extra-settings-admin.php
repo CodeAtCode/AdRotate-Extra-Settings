@@ -17,234 +17,314 @@
  */
 class AdrotateExtraSettingsAdmin {
 
-	/**
-	 * Instance of this class.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      object
-	 */
-	protected static $instance = null;
+    /**
+     * Instance of this class.
+     *
+     * @since    1.0.0
+     *
+     * @var      object
+     */
+    protected static $instance = null;
 
-	/**
-	 * Slug of the plugin screen.
-	 *
-	 * @since    1.0.0
-	 *
-	 * @var      string
-	 */
-	protected $plugin_screen_hook_suffix = null;
+    /**
+     * Slug of the plugin screen.
+     *
+     * @since    1.0.0
+     *
+     * @var      string
+     */
+    protected $plugin_screen_hook_suffix = null;
 
-	/**
-	 * Initialize the plugin by loading admin scripts & styles and adding a
-	 * settings page and menu.
-	 *
-	 * @since     1.0.0
-	 */
-	private function __construct() {
-		global $pagenow;
-		$this->plugin_slug = 'adrotate-extra-settings';
+    /**
+     * Initialize the plugin by loading admin scripts & styles and adding a
+     * settings page and menu.
+     *
+     * @since     1.0.0
+     */
+    private function __construct() {
+        global $pagenow;
+        $this->plugin_slug = 'adrotate-extra-settings';
 
-// Add the settings field
-		add_action( 'admin_init', array( $this, 'adrotate_extra_settings_form' ) );
-// Add the options page and menu item.
-		add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+        // Add the settings field
+        add_action( 'admin_init', array( $this, 'adrotate_extra_settings_form' ) );
+        // Add the options page and menu item.
+        add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
 
-// Add an action link pointing to the options page.
-		$plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
-		add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
+        // Add an action link pointing to the options page.
+        $plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
+        add_filter( 'plugin_action_links_' . $plugin_basename, array( $this, 'add_action_links' ) );
 
-		if ( $pagenow === 'admin.php') {
-			if ( $_GET[ 'page' ] === 'adrotate-ads' ) {
-				$setting = ( array ) get_option( $this->plugin_slug );
-				if ( isset( $_GET[ 'view' ] ) && ($_GET[ 'view' ] === 'addnew' || $_GET[ 'view' ] === 'edit' ) ) {
-					if ( isset( $setting[ 'examples' ] ) && !empty($setting[ 'examples' ]) ) {
-						add_action( 'admin_head', array( $this, 'add_examples' ) );
-					}
-				} else if ( !isset( $_GET[ 'view' ] ) ) {
-					if ( isset( $setting[ 'sortable' ] ) ) {
-						add_action( 'admin_head', array( $this, 'add_sortable' ) );
-					}
-				}
-			}else if ( $_GET[ 'page' ] === 'adrotate-groups' ) {
-				$setting = ( array ) get_option( $this->plugin_slug );
-				if ( isset( $setting[ 'sortable' ] ) ) {
-						add_action( 'admin_head', array( $this, 'add_sortable' ) );
-				}
-			}else if ( $_GET[ 'page' ] === 'adrotate-schedules' ) {
-				$setting = ( array ) get_option( $this->plugin_slug );
-				if ( isset( $setting[ 'sortable' ] ) ) {
-						add_action( 'admin_head', array( $this, 'add_sortable' ) );
-				}
-			}
-		}
-	}
+        if ( $pagenow === 'admin.php' ) {
+            if ( $_GET[ 'page' ] === 'adrotate-ads' ) {
+                $setting = ( array ) get_option( $this->plugin_slug );
+                if ( isset( $_GET[ 'view' ] ) && ($_GET[ 'view' ] === 'addnew' || $_GET[ 'view' ] === 'edit' ) ) {
+                    if ( isset( $setting[ 'examples' ] ) && !empty( $setting[ 'examples' ] ) ) {
+                        add_action( 'admin_head', array( $this, 'add_examples' ) );
+                    }
+                    if ( isset( $setting[ 'hide_usage' ] ) && !empty( $setting[ 'hide_usage' ] ) ||
+                            isset( $setting[ 'hide_geolocation' ] ) && !empty( $setting[ 'hide_geolocation' ] ) ||
+                            isset( $setting[ 'hide_timeframe' ] ) && !empty( $setting[ 'hide_timeframe' ] ) ) {
+                        add_action( 'admin_head', array( $this, 'hide_section_js' ) );
+                    }
+                } else if ( !isset( $_GET[ 'view' ] ) ) {
+                    if ( isset( $setting[ 'sortable' ] ) ) {
+                        add_action( 'admin_head', array( $this, 'add_sortable' ) );
+                    }
+                }
+            } else if ( $_GET[ 'page' ] === 'adrotate-groups' ) {
+                $setting = ( array ) get_option( $this->plugin_slug );
+                if ( isset( $setting[ 'sortable' ] ) ) {
+                    add_action( 'admin_head', array( $this, 'add_sortable' ) );
+                }
+            } else if ( $_GET[ 'page' ] === 'adrotate-schedules' ) {
+                $setting = ( array ) get_option( $this->plugin_slug );
+                if ( isset( $setting[ 'sortable' ] ) ) {
+                    add_action( 'admin_head', array( $this, 'add_sortable' ) );
+                }
+            }
+        }
+    }
 
-	/**
-	 * Return an instance of this class.
-	 *
-	 * @since     1.0.0
-	 *
-	 * @return    object    A single instance of this class.
-	 */
-	public static function get_instance() {
+    /**
+     * Return an instance of this class.
+     *
+     * @since     1.0.0
+     *
+     * @return    object    A single instance of this class.
+     */
+    public static function get_instance() {
 
-// If the single instance hasn't been set, set it now.
-		if ( null == self::$instance ) {
-			self::$instance = new self;
-		}
+        // If the single instance hasn't been set, set it now.
+        if ( null == self::$instance ) {
+            self::$instance = new self;
+        }
 
-		return self::$instance;
-	}
+        return self::$instance;
+    }
 
-	/**
-	 * Register the administration menu for this plugin into the WordPress Dashboard menu.
-	 *
-	 * @since    1.0.0
-	 */
-	public function add_plugin_admin_menu() {
+    /**
+     * Register the administration menu for this plugin into the WordPress Dashboard menu.
+     *
+     * @since    1.0.0
+     */
+    public function add_plugin_admin_menu() {
 
-		/*
-		 * Add a settings page for this plugin to the Settings menu.
-		 */
-		$this->plugin_screen_hook_suffix = add_options_page(
-				__( 'AdRotate Extra Settings', $this->plugin_slug ), __( 'AdRotate Extra Settings', $this->plugin_slug ), 'manage_options', $this->plugin_slug, array( $this, 'display_plugin_admin_page' )
-		);
-	}
+        /*
+         * Add a settings page for this plugin to the Adrotate menu.
+         */
 
-	/**
-	 * Render the settings page for this plugin.
-	 *
-	 * @since    1.0.0
-	 */
-	public function display_plugin_admin_page() {
-		include_once( 'views/admin.php' );
-	}
+        $this->plugin_screen_hook_suffix = add_submenu_page( 'adrotate', __( 'Adrotate Extra Settings', $this->plugin_slug ), __( 'Extra Settings', $this->plugin_slug ), 'manage_options', $this->plugin_slug, array( $this, 'display_plugin_admin_page' ) );
+    }
 
-	/**
-	 * Add settings action link to the plugins page.
-	 *
-	 * @since    1.0.0
-	 */
-	public function add_action_links( $links ) {
+    /**
+     * Render the settings page for this plugin.
+     *
+     * @since    1.0.0
+     */
+    public function display_plugin_admin_page() {
+        include_once( 'views/admin.php' );
+    }
 
-		return array_merge(
-				array(
-			'settings' => '<a href="' . admin_url( 'options-general.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
-				), $links
-		);
-	}
+    /**
+     * Add settings action link to the plugins page.
+     *
+     * @since    1.0.0
+     */
+    public function add_action_links( $links ) {
 
-	/**
-	 * Intiliaze all the field for the setting page.
-	 *
-	 * @since    1.0.0
-	 */
-	function adrotate_extra_settings_form() {
+        return array_merge(
+                array(
+            'settings' => '<a href="' . admin_url( 'admin.php?page=' . $this->plugin_slug ) . '">' . __( 'Settings', $this->plugin_slug ) . '</a>'
+                ), $links
+        );
+    }
 
-		add_settings_section(
-				$this->plugin_slug, __( 'Tweak', $this->plugin_slug ), function () {
-			
-		}, $this->plugin_slug
-		);
+    /**
+     * Intiliaze all the field for the setting page.
+     *
+     * @since    1.0.0
+     */
+    function adrotate_extra_settings_form() {
 
-		add_settings_field(
-				$this->plugin_slug . '_free_or_pro', __( 'Check if you use AdRotate Pro, uncheck if you use AdRotate', $this->plugin_slug ), array( $this, 'field_free_or_pro' ), $this->plugin_slug, $this->plugin_slug
-		);
-		
-		add_settings_field(
-				$this->plugin_slug . '_custom_examples', __( 'This add custom examples in the box for the ads, One rule for line, empty for disable it', $this->plugin_slug ), array( $this, 'field_examples' ), $this->plugin_slug, $this->plugin_slug
-		);
+        add_settings_section(
+                $this->plugin_slug, __( 'Tweak', $this->plugin_slug ), function () {
+            
+        }, $this->plugin_slug
+        );
 
-		add_settings_field(
-				$this->plugin_slug . '_custom_sortable', __( 'Enable sorting for table list of Ads and Groups', $this->plugin_slug ), array( $this, 'field_sortable' ), $this->plugin_slug, $this->plugin_slug
-		);
+//        add_settings_field(
+//                $this->plugin_slug . '_free_or_pro', __( 'Check if you use AdRotate Pro, uncheck if you use AdRotate', $this->plugin_slug ), array( $this, 'field_free_or_pro' ), $this->plugin_slug, $this->plugin_slug
+//        );
 
-		register_setting( $this->plugin_slug, $this->plugin_slug );
-	}
+        add_settings_field(
+                $this->plugin_slug . '_custom_examples', __( 'This add custom examples in the box for the ads.<br> One rule for line, empty for disable it', $this->plugin_slug ), array( $this, 'field_examples' ), $this->plugin_slug, $this->plugin_slug
+        );
 
-	/**
-	 * Check free or pro
-	 *
-	 * @since    1.0.0
-	 */
-	function field_free_or_pro() {
-		$setting = ( array ) get_option( $this->plugin_slug );
+        add_settings_field(
+                $this->plugin_slug . '_custom_sortable', __( 'Enable sorting for table list of Ads and Groups', $this->plugin_slug ), array( $this, 'field_sortable' ), $this->plugin_slug, $this->plugin_slug
+        );
 
-		if ( !isset( $setting[ 'pro' ] ) ) {
-			$setting[ 'pro' ] = false;
-		}
+        add_settings_field(
+                $this->plugin_slug . '_hide_usage', __( 'Hide usage section', $this->plugin_slug ), array( $this, 'hide_usage' ), $this->plugin_slug, $this->plugin_slug
+        );
+        
+        add_settings_field(
+                $this->plugin_slug . 'hide_geolocation', __( 'Hide geolocation section (only pro)', $this->plugin_slug ), array( $this, 'hide_geolocation' ), $this->plugin_slug, $this->plugin_slug
+        );
+        
+        add_settings_field(
+                $this->plugin_slug . 'hide_timeframe', __( 'Hide timeframe section (only pro)', $this->plugin_slug ), array( $this, 'hide_timeframe' ), $this->plugin_slug, $this->plugin_slug
+        );
 
-		echo '<input type="checkbox" name="' . $this->plugin_slug . '[pro]" ' . checked( $setting[ 'pro' ], 'on', false ) . ' />';
-	}
-	
-	/**
-	 * Custom examples
-	 *
-	 * @since    1.0.0
-	 */
-	function field_examples() {
-		$setting = ( array ) get_option( $this->plugin_slug );
+        register_setting( $this->plugin_slug, $this->plugin_slug );
+    }
 
-		if ( !isset( $setting[ 'examples' ] ) ) {
-			$setting[ 'examples' ] = '<img src="%image%" />';
-		}
+    /**
+     * Check free or pro
+     *
+     * @since    1.0.0
+     */
+    function field_free_or_pro() {
+        $setting = ( array ) get_option( $this->plugin_slug );
 
-		echo '<textarea name="' . $this->plugin_slug . '[examples]">' . esc_attr( $setting[ 'examples' ] ) . '</textarea>';
-	}
+        if ( !isset( $setting[ 'pro' ] ) ) {
+            $setting[ 'pro' ] = false;
+        }
 
-	/**
-	 * Sortable Table
-	 *
-	 * @since    1.0.0
-	 */
-	function field_sortable() {
-		$setting = ( array ) get_option( $this->plugin_slug );
+        echo '<input type="checkbox" name="' . $this->plugin_slug . '[pro]" ' . checked( $setting[ 'pro' ], 'on', false ) . ' />';
+    }
 
-		if ( !isset( $setting[ 'sortable' ] ) ) {
-			$setting[ 'sortable' ] = false;
-		}
+    /**
+     * Custom examples
+     *
+     * @since    1.0.0
+     */
+    function field_examples() {
+        $setting = ( array ) get_option( $this->plugin_slug );
 
-		echo '<input type="checkbox" name="' . $this->plugin_slug . '[sortable]" ' . checked( $setting[ 'sortable' ], 'on', false ) . ' />';
-	}
+        if ( !isset( $setting[ 'examples' ] ) ) {
+            $setting[ 'examples' ] = '<img src="%image%" />';
+        }
 
-	/**
-	 * Add custom examples
-	 *
-	 * @since    1.0.0
-	 */
-	public function add_examples() {
-		$setting = ( array ) get_option( $this->plugin_slug );
-		echo '<script>' . "\n";
-		echo 'jQuery(function() {' . "\n";
-		$setting[ 'examples' ] = explode( '\n', $setting[ 'examples' ] );
-		$i = 3;
-		foreach ( $setting[ 'examples' ] as $value ) {
-			$i++;
-			echo "jQuery('.widefat a[onclick]:last').parent().parent().parent().append('<p>" . $i . ". <em><a onclick=\"textatcursor(\'adrotate_bannercode\',\'" . htmlspecialchars( $value ) . "\');return false;\" href=\"#\">" . htmlspecialchars( $value ) . "</a></em></p>')\n";
-		}
-		echo '});' . "\n";
-		echo '</script>' . "\n";
-	}
+        echo '<textarea name="' . $this->plugin_slug . '[examples]">' . esc_attr( $setting[ 'examples' ] ) . '</textarea>';
+    }
 
-	/**
-	 * Add sortable table
-	 *
-	 * @since    1.0.0
-	 */
-	public function add_sortable() {
-		$setting = ( array ) get_option( $this->plugin_slug );
-		echo '<link rel="stylesheet" type="text/css" media="all"  href="' . plugins_url( 'assets/tablesorter/style.css', __FILE__ ) . '"/>' . "\n";
-		echo '<script src="' . plugins_url( 'assets/tablesorter/jquery.tablesorter.min.js', __FILE__ ) . '"></script>' . "\n";
-		echo '<script>' . "\n";
-		echo 'jQuery(function() {' . "\n";
-		if ( !isset( $setting[ 'pro' ] ) ) {
-			echo 'jQuery(".widefat").eq(1).addClass("tablesorter").tablesorter();';
-		} else {
-			echo 'jQuery(".widefat:not(:last)").addClass("tablesorter").tablesorter();';
-		}
-		echo '});' . "\n";
-		echo '</script>' . "\n";
-	}
+    /**
+     * Sortable Table
+     *
+     * @since    1.0.0
+     */
+    function field_sortable() {
+        $setting = ( array ) get_option( $this->plugin_slug );
+
+        if ( !isset( $setting[ 'sortable' ] ) ) {
+            $setting[ 'sortable' ] = false;
+        }
+
+        echo '<input type="checkbox" name="' . $this->plugin_slug . '[sortable]" ' . checked( $setting[ 'sortable' ], 'on', false ) . ' />';
+    }
+
+    /**
+     * Hide usage
+     *
+     * @since    1.0.0
+     */
+    function hide_usage() {
+        $setting = ( array ) get_option( $this->plugin_slug );
+
+        if ( !isset( $setting[ 'hide_usage' ] ) ) {
+            $setting[ 'hide_usage' ] = false;
+        }
+
+        echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_usage]" ' . checked( $setting[ 'hide_usage' ], 'on', false ) . ' />';
+    }
+    
+    /**
+     * Hide usage
+     *
+     * @since    1.0.0
+     */
+    function hide_geolocation() {
+        $setting = ( array ) get_option( $this->plugin_slug );
+
+        if ( !isset( $setting[ 'hide_geolocation' ] ) ) {
+            $setting[ 'hide_geolocation' ] = false;
+        }
+
+        echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_geolocation]" ' . checked( $setting[ 'hide_geolocation' ], 'on', false ) . ' />';
+    }
+    
+    /**
+     * Hide usage
+     *
+     * @since    1.0.0
+     */
+    function hide_timeframe() {
+        $setting = ( array ) get_option( $this->plugin_slug );
+
+        if ( !isset( $setting[ 'hide_timeframe' ] ) ) {
+            $setting[ 'hide_timeframe' ] = false;
+        }
+
+        echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_timeframe]" ' . checked( $setting[ 'hide_timeframe' ], 'on', false ) . ' />';
+    }
+
+    /**
+     * Add custom examples
+     *
+     * @since    1.0.0
+     */
+    public function add_examples() {
+        $setting = ( array ) get_option( $this->plugin_slug );
+        echo '<script>' . "\n";
+        echo 'jQuery(function() {' . "\n";
+        $setting[ 'examples' ] = explode( '\n', $setting[ 'examples' ] );
+        $i = 4;
+        foreach ( $setting[ 'examples' ] as $value ) {
+            $i++;
+            echo "jQuery('table.widefat:first a[onclick]:last').parent().parent().after('<p>" . $i . ". <em><a onclick=\"textatcursor(\'adrotate_bannercode\',\'" . htmlspecialchars( $value ) . "\');return false;\" href=\"#\">" . htmlspecialchars( $value ) . "</a></em></p>')\n";
+        }
+        echo '});' . "\n";
+        echo '</script>' . "\n";
+    }
+
+    /**
+     * Add sortable table
+     *
+     * @since    1.0.0
+     */
+    public function add_sortable() {
+        //$setting = ( array ) get_option( $this->plugin_slug );
+        echo '<link rel="stylesheet" type="text/css" media="all"  href="' . plugins_url( 'assets/tablesorter/style.css', __FILE__ ) . '"/>' . "\n";
+        echo '<script src="' . plugins_url( 'assets/tablesorter/jquery.tablesorter.min.js', __FILE__ ) . '"></script>' . "\n";
+        echo '<script>' . "\n";
+        echo 'jQuery(function() {' . "\n";
+        //if ( !isset( $setting[ 'pro' ] ) ) {
+        echo 'jQuery("table.widefat:not(:last)").addClass("tablesorter").tablesorter();';
+        echo '});' . "\n";
+        echo '</script>' . "\n";
+    }
+
+    /**
+     * Hide usage
+     *
+     * @since    1.0.0
+     */
+    public function hide_section_js() {
+        $setting = ( array ) get_option( $this->plugin_slug );
+        echo '<script>' . "\n";
+        echo 'jQuery(function() {' . "\n";
+        if ( isset( $setting[ 'hide_usage' ] ) ) {
+            echo "jQuery('h3:contains(\"Usage\")').hide().next().hide().next().hide().next().hide();\n";
+        }
+        if ( isset( $setting[ 'hide_geolocation' ] ) ) {
+            echo "jQuery('h3:contains(\"Geo Location\")').hide().next().hide().next().hide();\n";
+        }
+        if ( isset( $setting[ 'hide_timeframe' ] ) ) {
+            echo "jQuery('h3:contains(\"Timeframe\")').hide().next().hide().next().hide().next().hide();\n";
+        }
+        echo '});' . "\n";
+        echo '</script>' . "\n";
+    }
 
 }
