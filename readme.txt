@@ -8,7 +8,7 @@ Stable tag: 1.1.0
 License: GPLv2 or later
 License URI: http://www.gnu.org/licenses/gpl-2.0.html
 
-Ultra light plugin for Wordpress that add new tiny features to AdRotate/AdRotate Pro
+Ultra light plugin for Wordpress that add new tiny features to AdRotate/AdRotate Pro (not affiliated)
 
 == Description ==
 
@@ -22,6 +22,8 @@ For these small features is born this plugin:
 * Suggestion?
 
 Github Repo: [https://github.com/Mte90/AdRotate-Extra-Settings](https://github.com/Mte90/AdRotate-Extra-Settings)
+
+This plugin is not affiliated with the official AdRotate Free/Pro product
 
 == Installation ==
 
