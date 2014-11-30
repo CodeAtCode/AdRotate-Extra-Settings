@@ -62,6 +62,9 @@ Yes
 
 == Changelog ==
 
+= 1.1.0b =
+* Little fix for older PHP version
+
 = 1.1 =
 * Moved the settings page in the Adrotate menu
 * Removed the check for pro/free version (not required at the moment)

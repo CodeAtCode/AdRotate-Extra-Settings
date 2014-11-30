@@ -147,9 +147,7 @@ class AdrotateExtraSettingsAdmin {
     function adrotate_extra_settings_form() {
 
         add_settings_section(
-                $this->plugin_slug, __( 'Tweak', $this->plugin_slug ), function () {
-            
-        }, $this->plugin_slug
+                $this->plugin_slug, __( 'Tweak', $this->plugin_slug ), '__return_false', $this->plugin_slug
         );
 
 //        add_settings_field(
