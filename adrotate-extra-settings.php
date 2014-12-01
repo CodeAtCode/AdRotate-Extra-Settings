@@ -14,7 +14,7 @@
  * Plugin Name:       Adrotate Extra Settings
  * Plugin URI:        https://github.com/Mte90/AdRotate-Extra-Settings
  * Description:       Ultra light plugin for Wordpress that add new tinys feature to AdRotate/AdRotate Pro
- * Version:           1.1.0b
+ * Version:           1.1.1
  * Author:            Daniele 'Mte90' Scasciafratte
  * Author URI:        http://mte90.net
  * Text Domain:       adrotate-extra-settings
