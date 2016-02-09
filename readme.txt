@@ -64,6 +64,7 @@ Yes
 
 = 1.2.0 =
 * Update to the new AdRotate version
+* Update jquery.tablesorter
 
 = 1.1.1 =
 * Little fix for older PHP version
