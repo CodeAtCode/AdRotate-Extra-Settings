@@ -8,20 +8,19 @@
  * @author    Daniele 'Mte90' Scasciafratte <mte90net@gmail.com>
  * @license   GPL-2.0+
  * @link      http://mte90.net
- * @copyright 2014 
+ * @copyright 2014-2016 
  *
  * @wordpress-plugin
  * Plugin Name:       Adrotate Extra Settings
  * Plugin URI:        https://github.com/Mte90/AdRotate-Extra-Settings
  * Description:       Ultra light plugin for Wordpress that add new tinys feature to AdRotate/AdRotate Pro
- * Version:           1.1.1
+ * Version:           1.2.0
  * Author:            Daniele 'Mte90' Scasciafratte
  * Author URI:        http://mte90.net
  * Text Domain:       adrotate-extra-settings
  * License:           GPL-2.0+
  * License URI:       http://www.gnu.org/licenses/gpl-2.0.txt
  * Domain Path:       /languages
- * WordPress-Plugin-Boilerplate: v2.6.1
  */
 
 // If this file is called directly, abort.

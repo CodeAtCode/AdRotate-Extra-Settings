@@ -71,17 +71,12 @@ class AdrotateExtraSettingsAdmin {
                         add_action( 'admin_head', array( $this, 'add_sortable' ) );
                     }
                 }
-            } else if ( $_GET[ 'page' ] === 'adrotate-groups' ) {
+            } else if ( $_GET[ 'page' ] === 'adrotate-groups' || $_GET[ 'page' ] === 'adrotate-schedules') {
                 $setting = ( array ) get_option( $this->plugin_slug );
                 if ( isset( $setting[ 'sortable' ] ) ) {
                     add_action( 'admin_head', array( $this, 'add_sortable' ) );
                 }
-            } else if ( $_GET[ 'page' ] === 'adrotate-schedules' ) {
-                $setting = ( array ) get_option( $this->plugin_slug );
-                if ( isset( $setting[ 'sortable' ] ) ) {
-                    add_action( 'admin_head', array( $this, 'add_sortable' ) );
-                }
-            }
+            } 
         }
     }
 
@@ -108,11 +103,6 @@ class AdrotateExtraSettingsAdmin {
      * @since    1.0.0
      */
     public function add_plugin_admin_menu() {
-
-        /*
-         * Add a settings page for this plugin to the Adrotate menu.
-         */
-
         $this->plugin_screen_hook_suffix = add_submenu_page( 'adrotate', __( 'Adrotate Extra Settings', $this->plugin_slug ), __( 'Extra Settings', $this->plugin_slug ), 'manage_options', $this->plugin_slug, array( $this, 'display_plugin_admin_page' ) );
     }
 
@@ -150,10 +140,6 @@ class AdrotateExtraSettingsAdmin {
                 $this->plugin_slug, __( 'Tweak', $this->plugin_slug ), '__return_false', $this->plugin_slug
         );
 
-//        add_settings_field(
-//                $this->plugin_slug . '_free_or_pro', __( 'Check if you use AdRotate Pro, uncheck if you use AdRotate', $this->plugin_slug ), array( $this, 'field_free_or_pro' ), $this->plugin_slug, $this->plugin_slug
-//        );
-
         add_settings_field(
                 $this->plugin_slug . '_custom_examples', __( 'This add custom examples in the box for the ads.<br> One rule for line, empty for disable it', $this->plugin_slug ), array( $this, 'field_examples' ), $this->plugin_slug, $this->plugin_slug
         );
@@ -167,29 +153,14 @@ class AdrotateExtraSettingsAdmin {
         );
         
         add_settings_field(
-                $this->plugin_slug . 'hide_geolocation', __( 'Hide geolocation section (only pro)', $this->plugin_slug ), array( $this, 'hide_geolocation' ), $this->plugin_slug, $this->plugin_slug
+                $this->plugin_slug . 'hide_geolocation', __( 'Hide geolocation section', $this->plugin_slug ), array( $this, 'hide_geolocation' ), $this->plugin_slug, $this->plugin_slug
         );
         
         add_settings_field(
-                $this->plugin_slug . 'hide_timeframe', __( 'Hide timeframe section (only pro)', $this->plugin_slug ), array( $this, 'hide_timeframe' ), $this->plugin_slug, $this->plugin_slug
+                $this->plugin_slug . 'hide_advanced', __( 'Hide advanced section', $this->plugin_slug ), array( $this, 'hide_advanced' ), $this->plugin_slug, $this->plugin_slug
         );
 
         register_setting( $this->plugin_slug, $this->plugin_slug );
-    }
-
-    /**
-     * Check free or pro
-     *
-     * @since    1.0.0
-     */
-    function field_free_or_pro() {
-        $setting = ( array ) get_option( $this->plugin_slug );
-
-        if ( !isset( $setting[ 'pro' ] ) ) {
-            $setting[ 'pro' ] = false;
-        }
-
-        echo '<input type="checkbox" name="' . $this->plugin_slug . '[pro]" ' . checked( $setting[ 'pro' ], 'on', false ) . ' />';
     }
 
     /**
@@ -253,18 +224,18 @@ class AdrotateExtraSettingsAdmin {
     }
     
     /**
-     * Hide usage
+     * Hide advanced
      *
-     * @since    1.0.0
+     * @since    1.1.0
      */
-    function hide_timeframe() {
+    function hide_advanced() {
         $setting = ( array ) get_option( $this->plugin_slug );
 
-        if ( !isset( $setting[ 'hide_timeframe' ] ) ) {
-            $setting[ 'hide_timeframe' ] = false;
+        if ( !isset( $setting[ 'hide_advanced' ] ) ) {
+            $setting[ 'hide_advanced' ] = false;
         }
 
-        echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_timeframe]" ' . checked( $setting[ 'hide_timeframe' ], 'on', false ) . ' />';
+        echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_advanced]" ' . checked( $setting[ 'hide_advanced' ], 'on', false ) . ' />';
     }
 
     /**
@@ -277,10 +248,8 @@ class AdrotateExtraSettingsAdmin {
         echo '<script>' . "\n";
         echo 'jQuery(function() {' . "\n";
         $setting[ 'examples' ] = explode( '\n', $setting[ 'examples' ] );
-        $i = 4;
         foreach ( $setting[ 'examples' ] as $value ) {
-            $i++;
-            echo "jQuery('table.widefat:first a[onclick]:last').parent().parent().after('<p>" . $i . ". <em><a onclick=\"textatcursor(\'adrotate_bannercode\',\'" . htmlspecialchars( $value ) . "\');return false;\" href=\"#\">" . htmlspecialchars( $value ) . "</a></em></p>')\n";
+            echo "jQuery('table.widefat:first tr:nth-child(2n) a[onclick]:last').parent().parent().after('<p><em><a onclick=\"textatcursor(\'adrotate_bannercode\',\'" . htmlspecialchars( $value ) . "\');return false;\" href=\"#\">" . htmlspecialchars( $value ) . "</a></em></p>')\n";
         }
         echo '});' . "\n";
         echo '</script>' . "\n";
@@ -297,8 +266,7 @@ class AdrotateExtraSettingsAdmin {
         echo '<script src="' . plugins_url( 'assets/tablesorter/jquery.tablesorter.min.js', __FILE__ ) . '"></script>' . "\n";
         echo '<script>' . "\n";
         echo 'jQuery(function() {' . "\n";
-        //if ( !isset( $setting[ 'pro' ] ) ) {
-        echo 'jQuery("table.widefat:not(:last)").addClass("tablesorter").tablesorter();';
+        echo 'jQuery("table.widefat:not(:last)").addClass("tablesorter").tablesorter();' . "\n";
         echo '});' . "\n";
         echo '</script>' . "\n";
     }
@@ -313,13 +281,13 @@ class AdrotateExtraSettingsAdmin {
         echo '<script>' . "\n";
         echo 'jQuery(function() {' . "\n";
         if ( isset( $setting[ 'hide_usage' ] ) ) {
-            echo "jQuery('h3:contains(\"Usage\")').hide().next().hide().next().hide().next().hide();\n";
+            echo "jQuery('h3:contains(\"Usage\")').hide().next().hide().next().hide().next().hide().next().hide().next().hide();\n";
         }
         if ( isset( $setting[ 'hide_geolocation' ] ) ) {
-            echo "jQuery('h3:contains(\"Geo Location\")').hide().next().hide().next().hide();\n";
+            echo "jQuery('h3:contains(\"Geo Targeting in AdRotate Pro\"), h3:contains(\"Geo Targeting\")').hide().next().hide().next().hide();\n";
         }
-        if ( isset( $setting[ 'hide_timeframe' ] ) ) {
-            echo "jQuery('h3:contains(\"Timeframe\")').hide().next().hide().next().hide().next().hide();\n";
+        if ( isset( $setting[ 'hide_advanced' ] ) ) {
+            echo "jQuery('h3:contains(\"Advanced\")').hide().next().hide().next().hide().next().hide();\n";
         }
         echo '});' . "\n";
         echo '</script>' . "\n";
