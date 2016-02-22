@@ -49,6 +49,8 @@ class AdrotateExtraSettingsAdmin {
         add_action( 'admin_init', array( $this, 'adrotate_extra_settings_form' ) );
         // Add the options page and menu item.
         add_action( 'admin_menu', array( $this, 'add_plugin_admin_menu' ) );
+        // Add languages files
+        add_action( 'plugins_loaded', array( $this, 'load_plugin_textdomain' ), 1 );
 
         // Add an action link pointing to the options page.
         $plugin_basename = plugin_basename( plugin_dir_path( realpath( dirname( __FILE__ ) ) ) . $this->plugin_slug . '.php' );
@@ -71,12 +73,12 @@ class AdrotateExtraSettingsAdmin {
                         add_action( 'admin_head', array( $this, 'add_sortable' ) );
                     }
                 }
-            } else if ( $_GET[ 'page' ] === 'adrotate-groups' || $_GET[ 'page' ] === 'adrotate-schedules') {
+            } else if ( $_GET[ 'page' ] === 'adrotate-groups' || $_GET[ 'page' ] === 'adrotate-schedules' ) {
                 $setting = ( array ) get_option( $this->plugin_slug );
                 if ( isset( $setting[ 'sortable' ] ) ) {
                     add_action( 'admin_head', array( $this, 'add_sortable' ) );
                 }
-            } 
+            }
         }
     }
 
@@ -141,7 +143,7 @@ class AdrotateExtraSettingsAdmin {
         );
 
         add_settings_field(
-                $this->plugin_slug . '_custom_examples', __( 'This add custom examples in the box for the ads.<br> One rule for line, empty for disable it', $this->plugin_slug ), array( $this, 'field_examples' ), $this->plugin_slug, $this->plugin_slug
+                $this->plugin_slug . '_custom_examples', __( 'In this box you can add customed examples for the ads.<br> One rule for line, leave blank to disable it', $this->plugin_slug ), array( $this, 'field_examples' ), $this->plugin_slug, $this->plugin_slug
         );
 
         add_settings_field(
@@ -151,11 +153,11 @@ class AdrotateExtraSettingsAdmin {
         add_settings_field(
                 $this->plugin_slug . '_hide_usage', __( 'Hide usage section', $this->plugin_slug ), array( $this, 'hide_usage' ), $this->plugin_slug, $this->plugin_slug
         );
-        
+
         add_settings_field(
                 $this->plugin_slug . 'hide_geolocation', __( 'Hide geolocation section', $this->plugin_slug ), array( $this, 'hide_geolocation' ), $this->plugin_slug, $this->plugin_slug
         );
-        
+
         add_settings_field(
                 $this->plugin_slug . 'hide_advanced', __( 'Hide advanced section', $this->plugin_slug ), array( $this, 'hide_advanced' ), $this->plugin_slug, $this->plugin_slug
         );
@@ -207,7 +209,7 @@ class AdrotateExtraSettingsAdmin {
 
         echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_usage]" ' . checked( $setting[ 'hide_usage' ], 'on', false ) . ' />';
     }
-    
+
     /**
      * Hide usage
      *
@@ -222,7 +224,7 @@ class AdrotateExtraSettingsAdmin {
 
         echo '<input type="checkbox" name="' . $this->plugin_slug . '[hide_geolocation]" ' . checked( $setting[ 'hide_geolocation' ], 'on', false ) . ' />';
     }
-    
+
     /**
      * Hide advanced
      *
@@ -291,6 +293,13 @@ class AdrotateExtraSettingsAdmin {
         }
         echo '});' . "\n";
         echo '</script>' . "\n";
+    }
+
+    public function load_plugin_textdomain() {
+        $domain = $this->plugin_slug;
+        $locale = apply_filters( 'plugin_locale', get_locale(), $domain );
+        load_textdomain( $domain, trailingslashit( WP_LANG_DIR ) . $domain . '/' . $domain . '-' . $locale . '.mo' );
+        load_plugin_textdomain( $domain, FALSE, basename( plugin_dir_path( dirname( __FILE__ ) ) ) . '/languages/' );
     }
 
 }
